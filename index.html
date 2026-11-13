@@ -277,6 +277,14 @@ button.endg,.turn button.endg,.box button.endg{background:#D63B3B !important;col
 #pzov{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(40,20,8,.62);backdrop-filter:blur(3px);padding:16px}
 .pzc{background:var(--cream);border:3px solid var(--ink);border-radius:20px;box-shadow:0 6px 0 var(--ink);padding:24px 28px;max-width:420px;text-align:center;color:var(--ink)}
 .pzc h2{margin:8px 0}.pzi svg{width:48px;height:48px;color:var(--ink)}
+#pzov .cl,#pzov button{background:#7B3FA0 !important;color:#fff !important;border:2px solid var(--ink) !important;box-shadow:0 3px 0 var(--ink);font-family:var(--f-d);border-radius:12px;padding:.5rem 1.6rem;cursor:pointer}
+#pzov button:hover{background:#65318A !important}
+.rop{font-family:var(--f-d);border:2px solid var(--ink);border-radius:12px;box-shadow:0 3px 0 var(--ink);background:#7B3FA0;color:#fff;padding:.35rem 1rem;cursor:pointer}.rop:hover{background:#65318A}
+.turn .rop,.turn .newg{padding:3px 12px;font-size:.95rem}
+#tltip{position:fixed;z-index:9000;display:none;background:var(--cream);color:var(--ink);border:2px solid var(--ink);border-radius:12px;box-shadow:0 3px 0 var(--ink);padding:8px 12px;font-size:.88rem;line-height:1.35;pointer-events:none;max-width:240px}
+#tltip .tipr{margin-top:4px;padding-top:4px;border-top:1px dashed var(--ink)}
+.tl[data-tn]{cursor:help}.tl[data-tn]:focus-visible{outline:3px solid #7B3FA0;outline-offset:-3px}
+.side .clock{white-space:normal;display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px}.side .clock .pzb{margin-left:auto}
 </style>
 <div class="w" id="app"></div>
 <script>
@@ -297,15 +305,16 @@ const SC=[
 {n:"Krisis pasar modal",d:"Kepanikan global membuat harga saham anjlok.",s:-1},
 {n:"Investor asing menarik dana",d:"Dana asing keluar dari pasar saham syariah.",s:-1},
 {n:"Biaya operasional emiten membengkak",d:"Kenaikan biaya produksi menggerus laba emiten.",s:-1}];
-const CFG0={ver:3,start:10000000,startBonus:1000000,dd:500000,ins:500000,debtMax:1500000,
+const CFG0={ver:4,start:10000000,startBonus:1000000,dd:500000,ins:500000,debtMax:1500000,
  price:{sukuk:1000000,saham:500000,rpu:100000,apt:1800000,rumah:2500000},
  cap:{sukuk:20,saham:100,rpu:200,apt:15,rumah:10},
  inc:{sukuk:50000,saham:50000,rpu:5000},
- rent:{apt:180000,rumah:250000}};
+ rent:{apt:180000,rumah:300000}};
 const INC=["sukuk","saham","rpu"],PROP=["apt","rumah"];
 function fixCfg(g){if(!g||!g.cfg)return g;const c=g.cfg;
  if(!c.ver||c.ver<2){c.inc=clone(CFG0.inc);c.rent=clone(CFG0.rent);if(c.price&&c.price.rumah==3000000)c.price.rumah=CFG0.price.rumah;delete c.g;c.ver=2}
- if(c.ver<3){c.ver=3;if(c.start==5000000)c.start=CFG0.start;c.startBonus=CFG0.startBonus}return g}
+ if(c.ver<3){c.ver=3;if(c.start==5000000)c.start=CFG0.start;c.startBonus=CFG0.startBonus}
+ if(c.ver<4){c.ver=4;if(c.rent&&c.rent.rumah==250000)c.rent.rumah=CFG0.rent.rumah}return g}
 const OV={"Hadiah Ulang Tahun":{b:{o:50000}},"Arisan RT Cair":{b:{s:500000,t:200000,rich:1}},"Komisi Referral":{b:{t:300000}},"Insentif Komunitas":{b:{s:400000,ob:100000}},"Lelang Aset Bank":{1:{}},"Krisis Ekonomi":{1:{ob:-250000}}};
 
 /* ===== Utilitas ===== */
@@ -648,10 +657,10 @@ function undo(id){const e=L.find(x=>x.id==id);if(!e||!e.ch)return;ask(`Batalkan 
 
 /* ===== Admin: permainan dan tim ===== */
 function createGame(){const g={gid:uid(),round:1,turn:0,order:[],teams:{},stock:clone(CFG0.cap),cfg:clone(CFG0),used:{positif:[],negatif:[],tantangan:[]},ord:mkOrd(),open:null,over:false,created:Date.now()};saveG(g);logSimple("Permainan dibuat","Tambahkan tim di menu Admin",g);U.tab="admin";rr()}
-function newGame(){ask("Mulai permainan baru? Semua tim kembali ke saldo awal, aset dan kartu dikembalikan, putaran kembali ke 1, dan riwayat permainan lama disembunyikan. Anggota tim dan pengaturan tetap.",()=>{const g=clone(G);g.gid=uid();g.round=1;g.turn=0;g.over=false;g.open=null;g.spin=null;g.land={};g.lq={};g.pause=null;g.pzTot=0;g.tgt=null;g.t0=null;g.stock=clone(g.cfg.cap);g.used={positif:[],negatif:[],tantangan:[]};g.ord=mkOrd();
+function newGame(){ask("Mulai permainan baru? Semua tim kembali ke saldo awal, aset dan kartu dikembalikan, putaran kembali ke 1, dan riwayat permainan lama disembunyikan. Anggota tim dan pengaturan tetap.",()=>{const g=clone(G);g.gid=uid();g.round=1;g.turn=0;g.over=false;g.open=null;g.spin=null;g.land={};g.lq={};g.pause=null;g.pzTot=0;g.tend=null;g.tgt=null;g.t0=null;g.stock=clone(g.cfg.cap);g.used={positif:[],negatif:[],tantangan:[]};g.ord=mkOrd();
  Object.values(g.teams).forEach(T=>{const b=blankTeam(T.name,g.cfg);Object.assign(T,{cash:b.cash,dd:1,ins:1,debt:b.debt,assets:b.assets,skip:0,fx:[],years:0,vc:[],pos:0,sp:0})});saveG(g);logSimple("Permainan baru dimulai",`${g.order.length} tim, saldo awal ${rp(g.cfg.start)}`,g)},"Mulai baru")}
-function endGame(){ask("Akhiri permainan sekarang? Klasemen akhir dikunci, dan utang yang belum lunas akan mengurangi nilai akhir tim.",()=>{const g=clone(G);g.over=true;g.open=null;saveG(g);logSimple("Permainan berakhir","Klasemen akhir ditetapkan",g);U.tab="klasemen";rr()},"Akhiri permainan")}
-function reopen(){const g=clone(G);g.over=false;saveG(g)}
+function endGame(){ask("Akhiri permainan sekarang? Klasemen akhir dikunci, dan utang yang belum lunas akan mengurangi nilai akhir tim.",()=>{const g=clone(G);g.over=true;g.tend=Date.now();g.open=null;saveG(g);logSimple("Permainan berakhir","Klasemen akhir ditetapkan",g);U.tab="klasemen";rr()},"Akhiri permainan")}
+function reopen(){const g=clone(G);if(g.tend&&g.t0)g.t0+=Date.now()-g.tend;g.tend=null;g.over=false;saveG(g)}
 function addTeam(){const n=($("nt").value||"").trim()||("Tim "+(G.order.length+1));const g=clone(G),t=blankTeam(n,g.cfg);g.teams[t.id]=t;g.order.push(t.id);saveG(g);logSimple("Tim bergabung",`${n} · saldo awal ${rp(g.cfg.start)}, 1 Kartu Dana Darurat, 1 Kartu Asuransi`,g)}
 function renTeam(id,v){v=v.trim();if(!v)return;const g=clone(G);g.teams[id].name=v;saveG(g)}
 function newPin(id){const g=clone(G);g.teams[id].pin=String(1000+Math.random()*9000|0);saveG(g)}
@@ -811,7 +820,7 @@ function teamV(){const me=myTeam();let h="";
  <div class="fac ${T.dd?"":"off"}"><b>Dana Darurat</b><span>${rp(G.cfg.dd)}</span><small>${T.dd?`${T.dd} kartu siap dipakai`:"Sudah terpakai"}</small></div>
  <div class="fac ${T.ins?"":"off"}"><b>Asuransi All Risk</b><span>s.d. ${rp(G.cfg.ins)}</span><small>${T.ins?`${T.ins} kartu · sekali pakai untuk semua risiko`:"Sudah terpakai"}</small></div>
  <div class="fac"><b>Utang Qardh</b><span>${T.debt.out?`Sisa ${rp(T.debt.out)}`:T.debt.used?"Lunas":`Plafon ${rp(G.cfg.debtMax)}`}</span><small>${T.debt.used?"Fasilitas sudah dipakai":"Bisa dipakai sekali, tanpa bunga"}</small>${act&&!T.debt.used?`<button onclick="openModal({type:'debt',tid:'${id}',mode:'take'})">Ambil utang</button>`:""}${act&&T.debt.out?`<button onclick="openModal({type:'debt',tid:'${id}',mode:'pay'})">Lunasi</button>`:""}</div>${vcs(T).filter(v=>rem(v)>0).map(v=>{const n=vcName(v);return`<div class="fac vc"><b>${n.t}</b><span>${n.v}</span><small>${esc(n.s)}</small></div>`}).join("")}</div>`;
- h+=`<h3>Portofolio aset</h3><div class="tw"><table><thead><tr><th>Aset</th><th>Jumlah</th><th>Nilai sekarang</th><th>Modal</th><th>Untung/rugi</th></tr></thead><tbody>${AK.map(a=>{const x=T.assets[a],gl=x.v-x.c;return`<tr class="${x.q?"":"dim"}"><td>${AS[a].n}</td><td>${x.q} ${AS[a].u}</td><td>${rp(x.v)}</td><td>${rp(x.c)}</td><td class="${gl>0?"up":gl<0?"dn":""}">${x.q?sg(gl):"–"}</td></tr>`}).join("")}</tbody></table></div>`;
+ h+=`<h3>Portofolio aset</h3><div class="tw"><table><thead><tr><th>Aset</th><th>Jumlah</th><th>Nilai sekarang</th><th>Modal</th><th>Untung/rugi</th><th>Letak</th></tr></thead><tbody>${AK.map(a=>{const x=T.assets[a],gl=x.v-x.c;return`<tr class="${x.q?"":"dim"}"><td>${AS[a].n}</td><td>${x.q} ${AS[a].u}</td><td>${rp(x.v)}</td><td>${rp(x.c)}</td><td class="${gl>0?"up":gl<0?"dn":""}">${x.q?sg(gl):"–"}</td><td>${letakT(T,a)}</td></tr>`}).join("")}</tbody></table></div>${perTileH(T)}`;
  if(isMine&&MODE=="db")h+=`<div class="rs"><button onclick="leaveTeam()">Keluar dari tim</button></div>`;
  h+=`<h3>Riwayat ${esc(T.name)}</h3>`+logList(L.filter(e=>e.gid==G.gid&&e.ch&&e.ch.teams&&e.ch.teams[id]),id);return h}
 function joinV(){return`<section class="box join"><h1>Gabung ke tim</h1><p class="mu">Pilih tim Anda dan masukkan kode 4 angka dari admin. Setelah bergabung, Anda bisa memilih opsi kartu, membeli aset, dan menyelesaikan giliran dari perangkat ini.</p>${G.order.map(id=>`<div class="jrow"><b>${esc(G.teams[id].name)}</b><input id="pin_${id}" inputmode="numeric" maxlength="4" placeholder="Kode" aria-label="Kode ${esc(G.teams[id].name)}"><button class="wbtn" onclick="joinTeam('${id}')">Gabung</button></div>`).join("")||`<p class="mu">Belum ada tim.</p>`}</section>`}
@@ -1011,7 +1020,7 @@ function papanV(){let h=turnBar();if(!G.order.length)return h+addForm();
  let cells="";
  for(let k=1;k<=24;k++){const [r,c]=cellRC(k),t=BT[k],M=TT[t],ids=by[k]||[],n=ids.length,cc=Math.max(1,Math.ceil(Math.sqrt(n)));
   const lo=t=="land"?landOwner(k):null,li=lo?Math.max(0,G.order.indexOf(lo)):0;
-  cells+=`<div class="tl t-${t}${lo?" owned":""}" style="grid-area:${r}/${c}${lo?`;--oc:${PCOL[li%12]}`:""}" title="${k}. ${esc(M.n)}${lo?" · milik "+esc(tName(lo)):""}">${lo?`<span class="ow" title="Milik ${esc(tName(lo))}">${li+1}</span>`:""}<span class="num">${k}</span><span class="ic">${IC[t]}</span><span class="lb">${esc(M.lab)}</span>${n?`<div class="pws" style="--c:${cc}">${ids.map(id=>`<span class="pw${id==cur&&!G.over?" act":""}" title="${esc(tName(id))}">${tPawn(id)}</span>`).join("")}</div>`:""}</div>`}
+  cells+=`<div class="tl t-${t}${lo?" owned":""}" style="grid-area:${r}/${c}${lo?`;--oc:${PCOL[li%12]}`:""}" ${t=="land"?`data-tn="${k}" tabindex="0"`:`title="${k}. ${esc(M.n)}"`}>${lo?`<span class="ow" title="Milik ${esc(tName(lo))}">${li+1}</span>`:""}<span class="num">${k}</span><span class="ic">${IC[t]}</span><span class="lb">${esc(M.lab)}</span>${n?`<div class="pws" style="--c:${cc}">${ids.map(id=>`<span class="pw${id==cur&&!G.over?" act":""}" title="${esc(tName(id))}">${tPawn(id)}</span>`).join("")}</div>`:""}</div>`}
  const sp=spun?G.spin:null;
  const msg=G.over?"Permainan selesai":sp&&G.teams[sp.tid]?(wheelBusy()?"Roda berputar…":`${esc(G.teams[sp.tid].name)}: angka ${sp.n}, ke petak ${sp.to+1}`):canAct(cur)?`Giliran ${esc(tName(cur))}. Putar roda!`:`Menunggu ${esc(tName(cur))}`;
  h+=`<div class="bwrap"><div class="bd" role="group" aria-label="Papan Langkah Barakah, 24 petak">${cells}<div class="mat">${buntingH()}${DEC}<div class="ttlbox">LANGKAH<br>BARAKAH</div><div class="wh">${wheelH()}</div><div class="pbar"><button class="play" onclick="doSpin()" ${can?"":"disabled"}>PUTAR</button><button class="endb" onclick="endTurn()" ${canAct(cur)&&spun&&!pend&&!spinAnim&&!G.over?"":"disabled"}>SELESAI ›</button></div><div class="st" aria-live="polite">${msg}</div></div></div>`;
@@ -1186,7 +1195,8 @@ function reportBlocks(){const rows=rankRows(),B=[],now=new Date(),el=G.t0?NOW()-
   vcs(T).filter(v=>rem(v)>0).forEach(v=>{const n=vcName(v);fr.push([n.t,n.v,n.s])});
   B.push({t:"table",cols:[{h:"Kartu",w:20},{h:"Nilai",w:18},{h:"Keterangan",w:40}],rows:fr});
   B.push({t:"h3",x:"Portofolio aset"});
-  B.push({t:"table",cols:[{h:"Aset",w:26},{h:"Jumlah",w:12,a:"r"},{h:"Nilai sekarang",w:16,a:"r"},{h:"Modal",w:16,a:"r"},{h:"Untung/rugi",w:16,a:"r"}],rows:AK.map(a=>{const x=T.assets[a],gl=x.v-x.c;return[AS[a].n,`${x.q} ${AS[a].u}`,rp(x.v),rp(x.c),x.q?sg(gl):"-"]})});
+  B.push({t:"table",cols:[{h:"Aset",w:22},{h:"Jumlah",w:10,a:"r"},{h:"Nilai sekarang",w:14,a:"r"},{h:"Modal",w:14,a:"r"},{h:"Untung/rugi",w:14,a:"r"},{h:"Letak",w:30}],rows:AK.map(a=>{const x=T.assets[a],gl=x.v-x.c;return[AS[a].n,`${x.q} ${AS[a].u}`,rp(x.v),rp(x.c),x.q?sg(gl):"-",letakT(T,a,1)]})});
+  B.push({t:"p",x:"Sewa Land & Building dihitung dari aset di petak yang diinjak, bukan total aset tim."});
   if(T.skip||fx.length)B.push({t:"p",x:"Status: "+[T.skip?`lewati ${T.skip} giliran berikutnya`:"",...fx.map(f=>f.label)].filter(Boolean).join("; ")});
   const lg=(typeof L!="undefined"&&L?L:[]).filter(e=>e.gid==G.gid&&e.ch&&e.ch.teams&&e.ch.teams[id]);
   B.push({t:"h3",x:`Riwayat ${T.name}`});
@@ -1253,9 +1263,9 @@ function mkPdf(blocks){const PW=842,PH=595,M=40,CW=PW-2*M,pages=[];let cur=null,
 const fileStamp=()=>{const d=new Date(),p=n=>String(n).padStart(2,"0");return`${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`};
 async function dlKlasemen(){if(!G||!G.order.length)return tell("Belum ada tim.");const rows=rankRows(),el=G.t0?NOW()-G.t0:0;
  const k=[["Peringkat","Tim","Tahun ke-","Kas","Dana darurat","Investasi","Properti","Utang","Kekayaan bersih"],...rows.map((T,i)=>[i+1,T.name,T.years,T.cash,T.dd*G.cfg.dd,invV(T),propV(T),T.debt.out,net(T)])];
- const a=[["Tim","Aset","Jumlah","Satuan","Nilai sekarang","Modal","Untung/rugi"]];rows.forEach(T=>AK.forEach(x=>{const h=T.assets[x];a.push([T.name,AS[x].n,h.q,AS[x].u,h.v,h.c,h.q?h.v-h.c:0])}));
+ const a=[["Tim","Aset","Jumlah","Satuan","Nilai sekarang","Modal","Untung/rugi","Letak"]];rows.forEach(T=>AK.forEach(x=>{const h=T.assets[x];a.push([T.name,AS[x].n,h.q,AS[x].u,h.v,h.c,h.q?h.v-h.c:0,letakT(T,x,1)])}));
  const i=[["Keterangan","Nilai"],["Status",G.over?"Permainan selesai (klasemen akhir)":"Permainan berjalan (klasemen sementara)"],["Putaran",G.round],["Jumlah tim",rows.length],["Waktu bermain",G.t0?fmtT(el):"-"],["Target durasi (menit)",targetMin()],["Dibuat",new Date().toLocaleString("id-ID")],["Rumus kekayaan bersih","Kas + Dana Darurat belum dipakai + investasi + properti - utang belum lunas"]];
- const out=mkXlsx([{name:"Klasemen",rows:k,widths:[11,22,11,16,16,16,16,16,18]},{name:"Aset Tim",rows:a,widths:[22,32,10,10,16,16,16]},{name:"Info",rows:i,widths:[26,70]}]);
+ const out=mkXlsx([{name:"Klasemen",rows:k,widths:[11,22,11,16,16,16,16,16,18]},{name:"Aset Tim",rows:a,widths:[22,32,10,10,16,16,16,34]},{name:"Info",rows:i,widths:[26,70]}]);
  await saveFile(`klasemen-langkah-barakah-${fileStamp()}.xlsx`,new Blob([out],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}))}
 async function dlLaporan(fmt){if(!G||!G.order.length)return tell("Belum ada tim.");const B=reportBlocks(),nm=`laporan-langkah-barakah-${fileStamp()}`;
  try{if(fmt=="pdf")await saveFile(nm+".pdf",new Blob([mkPdf(B)],{type:"application/pdf"}));else await saveFile(nm+".docx",new Blob([mkDocx(B)],{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}))}catch(e){tell("Laporan gagal dibuat. Coba lagi.")}}
@@ -1336,7 +1346,7 @@ OV["Developer Buyback"]=Object.assign(OV["Developer Buyback"]||{},{b:{s:500000}}
 RULES["Freelance Berhasil"]={b:{req:()=>G.stock.rpu>=5?"":"Persediaan Reksa Dana tidak cukup",fx:()=>({a:{rpu:{q:5,v:500000,c:0}},stock:{rpu:-5}})}};
 
 /* ===== Jeda waktu (butir 58) ===== */
-const NOW=()=>(G&&G.pause)||Date.now();
+const NOW=()=>(G&&G.pause)||(G&&G.over&&G.tend)||Date.now();
 const PAUIC='<svg class="cic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4.2" height="14" rx="1.2" fill="currentColor"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.2" fill="currentColor"/></svg>';
 function pauseGame(){if(!ADMIN||!G||G.pause||G.over)return;const g=clone(G);g.pause=Date.now();saveG(g);logSimple("Permainan dijeda","Jam permainan dan semua timer dihentikan",g)}
 function resumeGame(){if(!ADMIN||!G||!G.pause)return;const g=clone(G),d=Date.now()-g.pause;g.pause=null;g.pzTot=(g.pzTot||0)+d;if(g.t0)g.t0+=d;saveG(g);logSimple("Permainan dilanjutkan",`Jeda ${fmtT(d)} tidak dihitung ke waktu bermain`,g)}
@@ -1347,6 +1357,37 @@ function pzSync(){let el=document.getElementById("pzov");const on=!!(G&&G.pause&
  el.innerHTML=on?`<div class="pzc" role="alertdialog" aria-label="Permainan dijeda"><div class="pzi">${PAUIC}</div><h2>Permainan dijeda</h2><p>Jam permainan dan semua timer berhenti. ${ADMIN?"Tekan Lanjutkan untuk meneruskan permainan.":"Tunggu admin melanjutkan permainan."}</p>${ADMIN?`<button class="cl" onclick="resumeGame()">Lanjutkan</button>`:""}</div>`:""}
 const rr0=rr;rr=function(){rr0();try{pzSync()}catch(e){}};
 setInterval(()=>{try{pzSync()}catch(e){}},400);
+
+/* ===== Papan: buka lagi dan mulai baru setelah permainan selesai (butir 59) ===== */
+const turnBar0=turnBar;
+turnBar=function(){const h=turnBar0();if(!(G&&G.over&&ADMIN&&G.order.length))return h;
+ const i=h.indexOf('<div class="tb">'),base=i>=0?h.slice(0,i):h.slice(0,h.lastIndexOf('</div>'));
+ return base+`<div class="tb"><span class="mu sm">Permainan selesai</span><button class="rop" onclick="reopenGame()">Buka lagi permainan</button><button class="newg" onclick="newGame()">Mulai permainan baru</button></div></div>`};
+function reopenGame(){ask("Buka lagi permainan? Klasemen, kas, aset, dan riwayat tetap. Permainan kembali berjalan dan jam dilanjutkan dari waktu saat permainan diakhiri.",reopen,"Buka lagi")}
+
+/* ===== Keterangan aset per petak (butir 60, 61) ===== */
+const teamIdOf=T=>Object.keys(G.teams).find(k=>G.teams[k]===T)||Object.keys(G.teams).find(k=>G.teams[k].name===T.name);
+function letakT(T,a,plain){if(!PROP.includes(a)||!T.assets[a].q)return plain?"-":"–";const id=teamIdOf(T),e=id?effLq(G,id):{},p=[];let placed=0;
+ LAND.forEach(t=>{const q=(e[t]||{})[a]||0;if(q){p.push(`Petak ${t}: ${q} unit`);placed+=q}});
+ const rest=T.assets[a].q-placed;if(rest>0)p.push(`Belum ditempatkan: ${rest} unit`);return p.join(" · ")}
+function perTileH(T){const id=teamIdOf(T),e=id?effLq(G,id):{},rows=LAND.filter(t=>e[t]&&PROP.some(a=>e[t][a]>0));
+ const un=PROP.map(a=>[a,T.assets[a].q-LAND.reduce((s,t)=>s+((e[t]||{})[a]||0),0)]).filter(x=>x[1]>0);
+ if(!rows.length&&!un.length)return`<p class="mu sm">Sewa Land &amp; Building dihitung dari aset di petak yang diinjak, bukan total aset tim. Tim ini belum memiliki properti.</p>`;
+ return`<h3>Aset per petak</h3><div class="tw"><table><thead><tr><th>Petak</th><th>Apartemen</th><th>Rumah</th><th>Sewa jika diinjak</th></tr></thead><tbody>${rows.map(t=>{const a=e[t].apt||0,r=e[t].rumah||0,sw=a*incOf(T,"apt",G.cfg.rent.apt).per+r*incOf(T,"rumah",G.cfg.rent.rumah).per;return`<tr><td>Petak ${t}</td><td>${a} unit</td><td>${r} unit</td><td>${rp(sw)}</td></tr>`}).join("")}${un.map(x=>`<tr class="dim"><td>Belum ditempatkan</td><td>${x[0]=="apt"?x[1]+" unit":"–"}</td><td>${x[0]=="rumah"?x[1]+" unit":"–"}</td><td>–</td></tr>`).join("")}</tbody></table></div><p class="mu sm">Sewa Land &amp; Building dihitung dari aset di petak yang diinjak, bukan total aset tim. Angka sewa memakai tarif dasar per unit, tanpa voucher.</p>`}
+function tileInfoH(k){const ow=landOwner(k);
+ if(!ow)return`<b>Petak ${k} · Land &amp; Building</b><div>Belum dimiliki</div>`;
+ const e=effLq(G,ow)[k]||{},O=G.teams[ow],a=e.apt||0,r=e.rumah||0,sw=a*incOf(O,"apt",G.cfg.rent.apt).per+r*incOf(O,"rumah",G.cfg.rent.rumah).per;
+ return`<b>Petak ${k} · Land &amp; Building</b><div>Milik ${esc(O.name)}</div><div>Apartemen: ${a} unit</div><div>Rumah: ${r} unit</div><div class="tipr">Sewa jika diinjak: <b>${rp(sw)}</b></div>`}
+let tipEl=null,tipTile=null;
+function tipHide(){if(tipEl)tipEl.style.display="none";tipTile=null}
+function tipShow(el){const k=+el.dataset.tn;if(!G||!k)return;if(!tipEl){tipEl=document.createElement("div");tipEl.id="tltip";tipEl.setAttribute("role","tooltip");document.body.appendChild(tipEl)}
+ tipEl.innerHTML=tileInfoH(k);tipEl.style.display="block";tipTile=el;const r=el.getBoundingClientRect(),w=tipEl.offsetWidth,h=tipEl.offsetHeight;
+ let x=r.left+r.width/2-w/2,y=r.top-h-8;if(y<4)y=r.bottom+8;x=Math.max(4,Math.min(innerWidth-w-4,x));tipEl.style.left=x+"px";tipEl.style.top=y+"px"}
+document.addEventListener("mouseover",e=>{const t=e.target.closest&&e.target.closest("[data-tn]");if(t)tipShow(t);else if(tipTile)tipHide()});
+document.addEventListener("focusin",e=>{const t=e.target.closest&&e.target.closest("[data-tn]");if(t)tipShow(t)});
+document.addEventListener("focusout",e=>{if(e.target.closest&&e.target.closest("[data-tn]"))tipHide()});
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-tn]");if(t){if(tipTile===t)tipHide();else tipShow(t)}else tipHide()});
+document.addEventListener("scroll",tipHide,true);
 
 render();boot();
 

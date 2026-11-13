@@ -285,13 +285,10 @@ button.endg,.turn button.endg,.box button.endg{background:#D63B3B !important;col
 #tltip .tipr{margin-top:4px;padding-top:4px;border-top:1px dashed var(--ink)}
 .tl[data-tn]{cursor:help}.tl[data-tn]:focus-visible{outline:3px solid #7B3FA0;outline-offset:-3px}
 .side .clock{white-space:normal;display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px}.side .clock .pzb{margin-left:auto}
-#mvbox{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:8000;display:none;width:min(92vw,420px)}
-#mvbox .mvc{background:var(--cream);color:var(--ink);border:3px solid var(--ink);border-left-width:12px;border-radius:16px;box-shadow:0 5px 0 var(--ink);padding:12px 16px;text-align:center}
-#mvbox[data-k=pos] .mvc{border-left-color:#35B467}#mvbox[data-k=neg] .mvc{border-left-color:#E04A4A}#mvbox[data-k=fin] .mvc{border-left-color:#2F6FD6}#mvbox[data-k=inv] .mvc{border-left-color:#F4A783}#mvbox[data-k=land] .mvc{border-left-color:#FFD93B}#mvbox[data-k=start] .mvc{border-left-color:#D63AA8}
-#mvbox .mvh{font-family:var(--f-d);font-size:1.25rem}#mvbox .mvr{margin-top:2px}#mvbox .mvs{font-size:.9rem;margin:4px 0 8px;opacity:.85}
-#mvbox .cl{width:100%}
-#mvbox{left:auto;right:16px;transform:none;width:min(calc(100vw - 32px),360px)}
-#mvbox .cl{background:#7B3FA0 !important;color:#fff !important;border:2px solid var(--ink) !important;box-shadow:0 3px 0 var(--ink);border-radius:12px;padding:.55rem 1rem;font-family:var(--f-d);font-size:1rem;cursor:pointer}
+#mvbox{z-index:8000;display:none}
+#mvbox.mvwalk{background:rgba(0,0,0,.28);pointer-events:none}#mvbox.mvwalk .cd{pointer-events:auto}
+#mvbox .cd{max-width:460px}
+#mvbox .cl{background:#7B3FA0 !important;color:#fff !important;border:2px solid var(--ink) !important;box-shadow:0 3px 0 var(--ink);border-radius:12px;padding:.55rem 1rem;font-family:var(--f-d);font-size:1rem;cursor:pointer;width:100%;margin-top:10px}
 #mvbox .cl:disabled{opacity:.55;cursor:default;box-shadow:none}
 </style>
 <div class="w" id="app"></div>
@@ -1415,8 +1412,8 @@ function mvSync(){let el=document.getElementById("mvbox");const m=U.mv,on=!!(m&&
  if(!el){el=document.createElement("div");el.id="mvbox";document.body.appendChild(el)}
  const key=on?[m.at,m.ready,G.teams[m.tid].name,landOwner(m.to+1)||""].join("|"):"off";if(key===mvKey)return;mvKey=key;
  if(!on){el.style.display="none";el.innerHTML="";return}
- const i=mvInfo(m);el.style.display="block";el.dataset.k=i.k;
- el.innerHTML=`<div class="mvc" role="status" aria-live="polite"><div class="mvh">${esc(i.T.name)}: maju <b>${m.n} langkah</b></div><div class="mvr">Menuju petak <b>${i.to}</b> · <b>${esc(i.kind)}</b></div><div class="mvs">${esc(i.hint)}</div><button class="cl" ${m.ready?"":"disabled"} onclick="proceedMove()">${m.ready?esc(i.btn):"Pion sedang berjalan…"}</button></div>`}
+ const i=mvInfo(m),cls=i.k=="pos"?"pos":i.k=="neg"?"neg":i.k=="fin"?"qz":"wl";el.className="ov "+cls+(m.ready?"":" mvwalk");el.style.display="flex";el.dataset.k=i.k;
+ el.innerHTML=`<div class="cd" role="dialog" aria-label="Perintah langkah"><h2>${esc(i.T.name)}: maju ${m.n} langkah</h2><p class="mu">${esc(i.hint)}</p><div class="prev"><div><span>Jumlah langkah</span><span>${m.n} langkah</span></div><div><span>Petak tujuan</span><span>Petak ${i.to}</span></div><div><span>Jenis petak</span><span>${esc(i.kind)}</span></div></div><button class="cl" ${m.ready?"":"disabled"} onclick="proceedMove()">${m.ready?esc(i.btn):"Pion sedang berjalan…"}</button></div>`}
 const rr1=rr;rr=function(){rr1();try{mvSync()}catch(e){}};
 setInterval(()=>{try{mvSync()}catch(e){}},400);
 

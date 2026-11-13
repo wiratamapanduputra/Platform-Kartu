@@ -285,6 +285,14 @@ button.endg,.turn button.endg,.box button.endg{background:#D63B3B !important;col
 #tltip .tipr{margin-top:4px;padding-top:4px;border-top:1px dashed var(--ink)}
 .tl[data-tn]{cursor:help}.tl[data-tn]:focus-visible{outline:3px solid #7B3FA0;outline-offset:-3px}
 .side .clock{white-space:normal;display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px}.side .clock .pzb{margin-left:auto}
+#mvbox{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:8000;display:none;width:min(92vw,420px)}
+#mvbox .mvc{background:var(--cream);color:var(--ink);border:3px solid var(--ink);border-left-width:12px;border-radius:16px;box-shadow:0 5px 0 var(--ink);padding:12px 16px;text-align:center}
+#mvbox[data-k=pos] .mvc{border-left-color:#35B467}#mvbox[data-k=neg] .mvc{border-left-color:#E04A4A}#mvbox[data-k=fin] .mvc{border-left-color:#2F6FD6}#mvbox[data-k=inv] .mvc{border-left-color:#F4A783}#mvbox[data-k=land] .mvc{border-left-color:#FFD93B}#mvbox[data-k=start] .mvc{border-left-color:#D63AA8}
+#mvbox .mvh{font-family:var(--f-d);font-size:1.25rem}#mvbox .mvr{margin-top:2px}#mvbox .mvs{font-size:.9rem;margin:4px 0 8px;opacity:.85}
+#mvbox .cl{width:100%}
+#mvbox{left:auto;right:16px;transform:none;width:min(calc(100vw - 32px),360px)}
+#mvbox .cl{background:#7B3FA0 !important;color:#fff !important;border:2px solid var(--ink) !important;box-shadow:0 3px 0 var(--ink);border-radius:12px;padding:.55rem 1rem;font-family:var(--f-d);font-size:1rem;cursor:pointer}
+#mvbox .cl:disabled{opacity:.55;cursor:default;box-shadow:none}
 </style>
 <div class="w" id="app"></div>
 <script>
@@ -953,6 +961,7 @@ function animateSpin(s){const el=$("wheelRot"),dur=calm()?300:3400,w0=wheelRot;s
  if(el){void el.getBoundingClientRect();el.style.transition=`transform ${dur}ms cubic-bezier(.1,.75,.12,1)`;el.style.transform=`rotate(${wheelRot}deg)`}
  setTimeout(()=>stepPawn(s),dur+150)}
 async function stepPawn(s){spinAnim=false;pendR=false;let p=s.from;
+ if(U.actor===s.at&&canAct(s.tid))U.mv={at:s.at,tid:s.tid,n:s.n,from:s.from,to:s.to,wrapped:s.wrapped,ready:false,s};mvSync();
  for(let i=0;i<s.n;i++){p=(p+1)%24;shown[s.tid]=p;sndStep(i);U.force=true;render();await wait(260)}
  delete shown[s.tid];sndLand();U.force=true;render();
  if(U.actor===s.at)afterMove(s)}
@@ -1388,6 +1397,28 @@ document.addEventListener("focusin",e=>{const t=e.target.closest&&e.target.close
 document.addEventListener("focusout",e=>{if(e.target.closest&&e.target.closest("[data-tn]"))tipHide()});
 document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-tn]");if(t){if(tipTile===t)tipHide();else tipShow(t)}else tipHide()});
 document.addEventListener("scroll",tipHide,true);
+
+/* ===== Kotak perintah setelah roda berhenti (butir 63) ===== */
+const afterMove0=afterMove;
+afterMove=function(s){if(U.mv&&U.mv.at==s.at){U.actor=null;U.mv.ready=true;mvSync();return}afterMove0(s)};
+function proceedMove(){const m=U.mv;if(!m||!m.ready||!G||!G.teams[m.tid]||!canAct(m.tid))return;U.mv=null;mvSync();afterMove0(m.s)}
+function mvInfo(m){const T=G.teams[m.tid],to=m.to+1,k=BT[to],M=TT[k];let kind="",hint="",btn="Lanjutkan";
+ if(M.deck){kind=M.n;hint=`Ambil ${M.n}`;btn="Buka kartu"}
+ else if(k=="inv"){kind=M.n;hint="Beli sukuk, saham, atau reksa dana";btn="Buka jendela beli"}
+ else if(k=="land"){kind=M.n;const ow=landOwner(to);if(ow&&ow!=m.tid){hint=`Petak milik ${tName(ow)} · bayar sewa`;btn="Bayar sewa"}else if(ow){hint="Petak milik sendiri · boleh menambah apartemen atau rumah";btn="Buka jendela beli"}else{hint="Petak kosong · boleh membeli apartemen atau rumah";btn="Buka jendela beli"}}
+ else{kind="Start";hint="Petak Start"}
+ if(m.wrapped){hint="Melewati Start, catat Start lebih dulu. "+hint;btn="Catat Start"}
+ return{T,to,k,kind,hint,btn}}
+let mvKey=null;
+function mvSync(){let el=document.getElementById("mvbox");const m=U.mv,on=!!(m&&G&&G.spin&&G.spin.at==m.at&&!G.over&&!G.pause&&G.teams[m.tid]);
+ if(m&&!on&&!(G&&G.pause))U.mv=null;
+ if(!el){el=document.createElement("div");el.id="mvbox";document.body.appendChild(el)}
+ const key=on?[m.at,m.ready,G.teams[m.tid].name,landOwner(m.to+1)||""].join("|"):"off";if(key===mvKey)return;mvKey=key;
+ if(!on){el.style.display="none";el.innerHTML="";return}
+ const i=mvInfo(m);el.style.display="block";el.dataset.k=i.k;
+ el.innerHTML=`<div class="mvc" role="status" aria-live="polite"><div class="mvh">${esc(i.T.name)}: maju <b>${m.n} langkah</b></div><div class="mvr">Menuju petak <b>${i.to}</b> · <b>${esc(i.kind)}</b></div><div class="mvs">${esc(i.hint)}</div><button class="cl" ${m.ready?"":"disabled"} onclick="proceedMove()">${m.ready?esc(i.btn):"Pion sedang berjalan…"}</button></div>`}
+const rr1=rr;rr=function(){rr1();try{mvSync()}catch(e){}};
+setInterval(()=>{try{mvSync()}catch(e){}},400);
 
 render();boot();
 
